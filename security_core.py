@@ -280,6 +280,26 @@ def crack_hash(hash_str: str, hash_type: str, custom_words: list[str] | None = N
     }
 
 
+# ENCRYPTION / DECRYPTION  (Fernet symmetric)
+def generate_fernet_key() -> str:
+    """Generate a new Fernet (AES-128-CBC + HMAC-SHA256) key."""
+    return Fernet.generate_key().decode()
+
+def encrypt_data(data: bytes, key: str) -> dict:
+    """Encrypt bytes with a Fernet key. Returns base64-encoded token."""
+    try:
+        f = Fernet(key.encode() if isinstance(key, str) else key)
+        token = f.encrypt(data)
+        return {
+            "success": True,
+            "encrypted": token.decode(),
+            "original_size_bytes": len(data),
+            "encrypted_size_bytes": len(token),
+            "algorithm": "Fernet (AES-128-CBC + HMAC-SHA256)",
+        }
+    except Exception as e:
+        return {"success": False, "error": str(e)}
+
 def decrypt_data(token: str, key: str) -> dict:
     """Decrypt a Fernet token with the provided key."""
     try:
