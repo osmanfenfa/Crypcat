@@ -10,26 +10,11 @@
 4. Brute-force simulation for authorized local testing scenarios.
 5. Secure password generator with policy enforcement controls.
 
-## Files (all in one directory)
-
-- `app.py`
-- `database.py`
-- `security_core.py`
-- `schemas.py`
-- `index.html`
-- `style.css`
-- `script.js`
-- `requirements.txt`
-
 ## PostgreSQL Setup
 
 1. Create a database:
 
 2. Set environment variable (PowerShell):
-
-```powershell
-$env:DATABASE_URL="postgresql://postgres:YOUR_PASSWORD@localhost:5432/sabilok_db"
-```
 
 The app creates `security_logs` table automatically on startup.
 
@@ -37,19 +22,11 @@ The app creates `security_logs` table automatically on startup.
 
 1. Install dependencies:
 
-```powershell
-python -m pip install -r requirements.txt
-```
-
 2. Start the app:
 
 ```powershell
 uvicorn app:app --reload
 ```
-
-3. Open:
-
-`http://127.0.0.1:8000`
 
 ## Notes
 
@@ -77,10 +54,4 @@ Start-Service postgresql-x64-16
 
 ```powershell
 Test-NetConnection localhost -Port 5432
-```
-
-4. Check your DB URL before running Uvicorn.
-
-```powershell
-$env:DATABASE_URL="postgresql://postgres:YOUR_PASSWORD@localhost:5432/sabilok_db"
 ```
