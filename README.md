@@ -1,4 +1,4 @@
-# Crypca
+# Crypcat
 
 `Crypca` is a FastAPI web toolkit.
 
