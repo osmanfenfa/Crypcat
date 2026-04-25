@@ -1,0 +1,377 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Crypca – Password &amp; Cryptography Suite</title>
+  <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+<div class="app">
+  <aside class="sidebar">
+    <div class="logo">
+      <span class="logo-icon">🔐</span>
+      <div>
+        <div class="logo-name">Crypca</div>
+        <div class="logo-tag">Security Suite</div>
+      </div>
+    </div>
+
+    <nav class="nav">
+      <button class="nav-item active" data-panel="audit" onclick="switchTab('audit',this)">
+        <span class="nav-icon"></span><span>Password Audit</span>
+      </button>
+      <button class="nav-item" data-panel="identify" onclick="switchTab('identify',this)">
+        <span class="nav-icon"></span><span>Hash Identify</span>
+      </button>
+      <button class="nav-item" data-panel="crack" onclick="switchTab('crack',this)">
+        <span class="nav-icon"></span><span>Hash Cracker</span>
+      </button>
+      <button class="nav-item" data-panel="encrypt" onclick="switchTab('encrypt',this)">
+        <span class="nav-icon"></span><span>Encrypt / Decrypt</span>
+      </button>
+      <button class="nav-item" data-panel="brute" onclick="switchTab('brute',this)">
+        <span class="nav-icon"></span><span>Brute Force Sim</span>
+      </button>
+      <button class="nav-item" data-panel="generate" onclick="switchTab('generate',this)">
+        <span class="nav-icon"></span><span>Password Gen</span>
+      </button>
+      <button class="nav-item" data-panel="logs" onclick="switchTab('logs',this)">
+        <span class="nav-icon"></span><span>Activity Logs</span>
+      </button>
+    </nav>
+
+    <div class="sidebar-footer">
+      Crypca v1.0 &nbsp;·&nbsp; Educational use only
+    </div>
+  </aside>
+
+  <main class="main">
+    <div class="top-bar">
+      <h1 id="page-title">Password Auditor</h1>
+      <p  id="page-desc">Analyse password strength beyond basic checks</p>
+    </div>
+
+    <div class="content">
+      <div id="panel-audit" class="panel active">
+        <div class="two-col">
+          <div>
+            <div class="card">
+              <div class="card-title">Input</div>
+              <div class="field">
+                <label>Password to audit</label>
+                <input type="password" id="audit-pw" placeholder="Enter a password…"
+                       oninput="liveAudit(this.value)">
+              </div>
+              <div class="field">
+                <label>
+                  <input type="checkbox" id="audit-show" onchange="toggleShow('audit-pw','audit-show')">
+                  &nbsp;Show password
+                </label>
+              </div>
+              <div class="strength-wrap" id="audit-strength-wrap" style="display:none">
+                <div class="strength-label">
+                  Strength: <span id="audit-strength-label">—</span>
+                  &nbsp;·&nbsp; Score: <span id="audit-score">0</span>/100
+                </div>
+                <div class="strength-bar">
+                  <div class="strength-fill" id="audit-fill" style="width:0%;background:#ef4444"></div>
+                </div>
+              </div>
+              <div class="btn-group">
+                <button class="btn btn-primary btn-full" onclick="auditPassword()">Audit Password</button>
+              </div>
+            </div>
+          </div>
+
+          <div id="audit-result-col">
+            <div class="card" style="display:none" id="audit-result-card">
+              <div class="card-title">Analysis</div>
+              <div class="stats-grid" id="audit-stats"></div>
+              <div class="divider"></div>
+              <div id="audit-issues-wrap">
+                <div class="section-title">Issues found</div>
+                <ul class="issue-list" id="audit-issues"></ul>
+              </div>
+              <div class="divider"></div>
+              <div id="audit-suggest-wrap">
+                <div class="section-title">Suggestions</div>
+                <ul class="suggest-list" id="audit-suggest"></ul>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div id="panel-identify" class="panel">
+        <div class="two-col">
+          <div>
+            <div class="card">
+              <div class="card-title">Input</div>
+              <div class="field">
+                <label>Hash string</label>
+                <textarea id="identify-hash" placeholder="Paste a hash here…"></textarea>
+              </div>
+              <div class="btn-group">
+                <button class="btn btn-primary btn-full" onclick="identifyHash()">Identify Hash</button>
+              </div>
+            </div>
+          </div>
+          <div>
+            <div class="card" id="identify-result-card" style="display:none">
+              <div class="card-title">Possible Hash Types</div>
+              <div class="stats-grid" style="margin-bottom:.75rem">
+                <div class="stat-box">
+                  <div class="stat-value" id="identify-len">—</div>
+                  <div class="stat-label">Hash length</div>
+                </div>
+                <div class="stat-box">
+                  <div class="stat-value" id="identify-count">—</div>
+                  <div class="stat-label">Possible types</div>
+                </div>
+              </div>
+              <div class="hash-type-list" id="identify-types"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div id="panel-crack" class="panel">
+        <div class="notice notice-warn">
+          Educational use only. Only run against hashes you own or have explicit permission to test.
+        </div>
+        <div class="two-col">
+          <div>
+            <div class="card">
+              <div class="card-title">Input</div>
+              <div class="field">
+                <label>Hash string</label>
+                <textarea id="crack-hash" placeholder="e.g. 5f4dcc3b5aa765d61d8327deb882cf99"></textarea>
+              </div>
+              <div class="field">
+                <label>Hash algorithm</label>
+                <select id="crack-type">
+                  <option value="md5">MD5</option>
+                  <option value="sha1">SHA-1</option>
+                  <option value="sha224">SHA-224</option>
+                  <option value="sha256">SHA-256</option>
+                  <option value="sha384">SHA-384</option>
+                  <option value="sha512">SHA-512</option>
+                </select>
+              </div>
+              <div class="field">
+                <label>Custom wordlist (one word per line, tried first)</label>
+                <textarea id="crack-words" placeholder="Optional…" style="min-height:70px"></textarea>
+              </div>
+              <div class="btn-group">
+                <button class="btn btn-primary btn-full" onclick="crackHash()">
+                  Attempt Crack
+                </button>
+              </div>
+            </div>
+          </div>
+          <div>
+            <div class="card" id="crack-result-card" style="display:none">
+              <div class="card-title">Result</div>
+              <div id="crack-result"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div id="panel-encrypt" class="panel">
+        <div class="notice">
+          Uses <strong>Fernet</strong> (AES-128-CBC + HMAC-SHA256). Keep your key safe — it cannot be recovered.
+        </div>
+
+        <div class="section-title">Encrypt text</div>
+        <div class="card">
+          <div class="field">
+            <label>Plain text</label>
+            <textarea id="enc-text" placeholder="Enter text to encrypt…"></textarea>
+          </div>
+          <div class="field">
+            <label>Encryption key (leave blank to generate a new key)</label>
+            <input type="text" id="enc-key" placeholder="Fernet key…">
+          </div>
+          <div class="btn-group">
+            <button class="btn btn-primary" onclick="encryptText()">Encrypt</button>
+          </div>
+          <div id="enc-result"></div>
+        </div>
+
+        <div class="section-title">Encrypt file</div>
+        <div class="card">
+          <div class="row">
+            <div class="field">
+              <label>File</label>
+              <input type="file" id="enc-file">
+            </div>
+            <div class="field">
+              <label>Key (optional)</label>
+              <input type="text" id="enc-file-key" placeholder="Leave blank to generate">
+            </div>
+          </div>
+          <div class="btn-group">
+            <button class="btn btn-primary" onclick="encryptFile()">Encrypt File</button>
+          </div>
+          <div id="enc-file-result"></div>
+        </div>
+
+        <div class="section-title">Decrypt</div>
+        <div class="card">
+          <div class="field">
+            <label>Encrypted token</label>
+            <textarea id="dec-token" placeholder="Paste the encrypted token…"></textarea>
+          </div>
+          <div class="field">
+            <label>Key</label>
+            <input type="text" id="dec-key" placeholder="Fernet key used during encryption">
+          </div>
+          <div class="btn-group">
+            <button class="btn btn-primary" onclick="decryptText()">Decrypt</button>
+          </div>
+          <div id="dec-result"></div>
+        </div>
+      </div>
+
+      <div id="panel-brute" class="panel">
+        <div class="notice notice-warn">
+          Simulation only. Live cracking is capped at 200,000 attempts; the rest are theoretical estimates.
+          Use only against hashes you own.
+        </div>
+        <div class="two-col">
+          <div>
+            <div class="card">
+              <div class="card-title">Configuration</div>
+              <div class="field">
+                <label>Hash string</label>
+                <textarea id="bf-hash" placeholder="e.g. 900150983cd24fb0d6963f7d28e17f72"></textarea>
+              </div>
+              <div class="row">
+                <div class="field">
+                  <label>Algorithm</label>
+                  <select id="bf-type">
+                    <option value="md5">MD5</option>
+                    <option value="sha1">SHA-1</option>
+                    <option value="sha256">SHA-256</option>
+                    <option value="sha512">SHA-512</option>
+                  </select>
+                </div>
+                <div class="field">
+                  <label>Max candidate length (1–6)</label>
+                  <input type="number" id="bf-len" value="4" min="1" max="6">
+                </div>
+              </div>
+              <div class="field">
+                <label>Character set</label>
+                <select id="bf-charset">
+                  <option value="digits">Digits (0–9)</option>
+                  <option value="lowercase" selected>Lowercase (a–z)</option>
+                  <option value="uppercase">Uppercase (A–Z)</option>
+                  <option value="alphanumeric">Alphanumeric</option>
+                  <option value="full">Full (letters + digits + symbols)</option>
+                </select>
+              </div>
+              <div class="btn-group">
+                <button class="btn btn-primary btn-full" id="bf-btn" onclick="bruteForce()">
+                  Run Simulation
+                </button>
+              </div>
+            </div>
+          </div>
+          <div>
+            <div class="card" id="bf-result-card" style="display:none">
+              <div class="card-title">Simulation Results</div>
+              <div id="bf-result"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div id="panel-generate" class="panel">
+        <div class="two-col">
+          <div>
+            <div class="card">
+              <div class="card-title">Policy</div>
+              <div class="row">
+                <div class="field">
+                  <label>Length</label>
+                  <input type="number" id="gen-len" value="16" min="4" max="256">
+                </div>
+                <div class="field">
+                  <label>Custom special chars</label>
+                  <input type="text" id="gen-special" placeholder="Default: !@#$%^&*…">
+                </div>
+              </div>
+              <div class="checks">
+                <label class="check-item">
+                  <input type="checkbox" id="gen-upper" checked> Uppercase (A–Z)
+                </label>
+                <label class="check-item">
+                  <input type="checkbox" id="gen-lower" checked> Lowercase (a–z)
+                </label>
+                <label class="check-item">
+                  <input type="checkbox" id="gen-digits" checked> Digits (0–9)
+                </label>
+                <label class="check-item">
+                  <input type="checkbox" id="gen-special-cb" checked> Special chars
+                </label>
+                <label class="check-item">
+                  <input type="checkbox" id="gen-ambig"> Exclude ambiguous (0,O,l,1…)
+                </label>
+              </div>
+              <div class="btn-group">
+                <button class="btn btn-primary btn-full" onclick="generatePassword()">Generate Password</button>
+              </div>
+            </div>
+          </div>
+          <div>
+            <div class="card" id="gen-result-card" style="display:none">
+              <div class="card-title">Generated Password</div>
+              <div id="gen-pw-display" class="result-block" style="font-size:16px;letter-spacing:.05em;color:#10b981;cursor:pointer"
+                   title="Click to copy" onclick="copyText(this.textContent,'gen-copy-msg')"></div>
+              <div style="display:flex;align-items:center;gap:.5rem;margin-top:.5rem">
+                <button class="btn btn-outline btn-sm" onclick="copyText(document.getElementById('gen-pw-display').textContent,'gen-copy-msg')">Copy</button>
+                <span id="gen-copy-msg" class="copied" style="display:none">Copied!</span>
+              </div>
+              <div class="strength-wrap" style="margin-top:1rem">
+                <div class="strength-label">
+                  Strength: <span id="gen-strength-label">—</span>
+                  &nbsp;·&nbsp; Score: <span id="gen-score">0</span>/100
+                </div>
+                <div class="strength-bar">
+                  <div class="strength-fill" id="gen-fill" style="width:0%"></div>
+                </div>
+              </div>
+              <div class="stats-grid" id="gen-stats"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div id="panel-logs" class="panel">
+        <div class="logs-toolbar">
+          <span class="logs-count" id="logs-count">Loading…</span>
+          <div style="display:flex;gap:.5rem">
+            <button class="btn btn-outline btn-sm" onclick="loadLogs()">↻ Refresh</button>
+            <button class="btn btn-danger btn-sm" onclick="clearLogs()">🗑 Clear all</button>
+          </div>
+        </div>
+        <div class="card" style="padding:0;overflow:hidden">
+          <div id="logs-body" style="overflow-x:auto">
+            <div class="empty-state">
+              <div class="empty-icon">📋</div>
+              Loading logs…
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div><!-- /content -->
+  </main>
+</div><!-- /app -->
+
+<script src="/static/script.js"></script>
+</body>
+</html>
